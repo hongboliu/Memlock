@@ -1,0 +1,56 @@
+Memlock - distributed locking service with memcached
+====================================================
+
+Features:
+
+  Reentrant lock: a Memlock can be re-locked multiple times if the current
+  script owns the lock. Re-locking a lock will return immediately and cost no
+  additional resources.
+
+  Auto release: if script stops with error/exception, or the programmer simply
+  forgot to unlock, all locks hold by the current script will be released
+  automatically.
+
+
+Example:
+
+  $lock = new Memlock($userId);
+  // do some work
+  $lock->unlock();
+  ......
+
+
+Public methods:
+
+  lock()
+    Acquire the lock. Surprisingly, you are not likely to call this method often,
+    because the constructor with default arguments will acquire the lock
+    automatically, just remember to call unlock() after the work is done.
+
+  unlock()
+    Release the lock.
+
+  isLocked()
+    Check whether the current script holding the lock.
+
+  key()
+    Return the key to identify the current lock.
+
+
+Adaption:
+
+Before adapt Memlock into your project, there are usually two things need to be
+done to fit your requirements.
+
+1. Connect to Memcache
+  Modify const MEMCACHE_HOST to point to your memcached server. Additionally,
+  you can modify the behavior of static method initMemcache(), such as connect
+  to a different port or connect to a memcached server pool.
+
+2. Action to take on failure.
+  The default action to take when a lock attempt failed is exiting the script
+  with message 'Server busy'. You can change this behavior by modifying method
+  onLockFailed(), such as throwing an Exception and catch it in the caller.
+
+
+Copyright (c) 2014 Hongbo Liu, released under The MIT License (MIT)
